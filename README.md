@@ -1,6 +1,6 @@
 ---
 
-# 📥 yt-dlp-auto
+# 📥 yt-dlp-fnos
 
 基于 **yt-dlp + systemd** 的全自动 YouTube 视频后台下载器，支持：
 
