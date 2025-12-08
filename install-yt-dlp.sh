@@ -57,7 +57,7 @@ while true; do
             --cookies "$COOKIE" \
             --concurrent-fragments 8 \
             --merge-output-format mp4 \
-            -P "$DOWNLOAD_DIR" \
+            -o "$DOWNLOAD_DIR/%(upload_date)s_%(title)s.%(ext)s" \
             "$URL" 2>&1 | tee -a "$LOG_FILE"
 
         RET=$?
@@ -71,7 +71,7 @@ while true; do
         "$YTDLP_BIN" \
             --cookies "$COOKIE" \
             -f "bestvideo[height<=1080]+bestaudio/best[height<=1080]" \
-            -o "$DOWNLOAD_1080P_DIR/%(title)s_1080p.%(ext)s" \
+            -o "$DOWNLOAD_1080P_DIR/%(upload_date)s_%(title)s_1080p.%(ext)s" \
             "$URL" 2>&1 | tee -a "$LOG_FILE"
 
         if [ $? -eq 0 ]; then
