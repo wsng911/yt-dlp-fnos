@@ -24,7 +24,7 @@ cat > /home/yt-dlp/monitor.sh << 'EOF'
 BASE="/home/yt-dlp"
 URL_FILE="/vol1/1000/YT-DLP/dl.txt"
 COOKIE="$BASE/cookies.txt"
-LOG_DIR="$BASE/logs"
+LOG_DIR="/vol1/1000/YT-DLP"
 DOWNLOAD_DIR="/vol1/1000/YouTube"
 DOWNLOAD_1080P_DIR="/vol1/1000/YouTube/1080P"
 YTDLP_BIN="/home/yt-dlp/bin/yt-dlp"
