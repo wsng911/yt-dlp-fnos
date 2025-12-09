@@ -19,7 +19,7 @@
 # 🚀 一键安装
 
 ```bash
-bash <(curl -sL bash <(curl -sL https://raw.githubusercontent.com/wsng911/yt-dlp-fnos/main/install-yt-dlp.sh)
+bash <(curl -sL https://raw.githubusercontent.com/wsng911/yt-dlp-fnos/main/install-yt-dlp.sh)
 
 ```
 
