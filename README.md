@@ -2,7 +2,7 @@
 
 # 📥 yt-dlp-fnos
 
-基于 **yt-dlp + systemd** 的全自动 YouTube 视频后台下载器，支持：
+基于 **yt-dlp + systemd** 的全自动 YouTube 适用于的视频后台下载器，支持：
 
 * 自动检测下载队列 (`dl.txt`)
 * 自动下载原始视频
@@ -12,7 +12,7 @@
 * 自动开机启动
 * 支持 cookies.txt（登录下载）
 
-适用于 **Linux / Debian / Ubuntu / NAS 环境（含威联通 / 群晖自建 Debian 容器）**。
+适用于 **Linux / Debian / Ubuntu / NAS 环境（含威联通 / 群晖自建 Debian 容器）【飞牛fnos已测试】**。
 
 ---
 
@@ -33,29 +33,36 @@ bash <(curl -sL https://github.com/wsng911/yt-dlp-fnos/blob/main/install-yt-dlp.
 
 ---
 
-# 📂 目录结构
+# 📘 yt-dlp 自动下载服务 README
 
-安装后目录结构如下：
+
+---
+
+## 📂 目录结构
+
+最终目录结构如下：
 
 ```
 /vol1/1000/
-├── YouTube/              # 原始下载视频输出
-│   └── 1080P/            # 自动生成的1080P版本
+├── YouTube/
+│   ├── <频道名>/
+│   │   └── YYYYMMDD_标题.mp4
+│   └── 1080P/
+│       └── <频道名>/
+│           └── YYYYMMDD_标题_1080p.mp4
 └── YT-DLP/
-    └── dl.txt            # 下载任务队列
-/home/yt-dlp/
-├── monitor.sh            # 自动监控脚本（核心）
-├── bin/yt-dlp            # yt-dlp 主程序
-└── logs/monitor.log      # 日志输出
+    ├── dl.txt          # 写入待下载 URL
+    ├── cookies.txt     # YouTube cookies
+    └── monitor.log     # 服务日志
 ```
 
 ---
 
-# 📝 使用方式
+## ✏ 使用方法
 
-## ① 写入下载链接
+### 1. 写入待下载视频链接
 
-将任意 YouTube URL 写入：
+把视频 / 播放列表 / Shorts 的链接写入：
 
 ```
 /vol1/1000/YT-DLP/dl.txt
@@ -64,117 +71,103 @@ bash <(curl -sL https://github.com/wsng911/yt-dlp-fnos/blob/main/install-yt-dlp.
 例如：
 
 ```
-https://www.youtube.com/watch?v=abc123
-https://www.youtube.com/watch?v=xyz999
+https://www.youtube.com/watch?v=xxxx
+https://youtu.be/yyyy
 ```
 
-脚本会自动检测，每条链接下载后自动删除队列中的行。
+服务会自动处理，并在完成后从文件中删除该行。
 
 ---
 
-# 🎬 下载结果
+### 2. 下载结果输出
 
-| 类型             | 输出位置                        | 说明               |
-| -------------- | --------------------------- | ---------------- |
-| 原始格式 mp4       | `/vol1/1000/YouTube/`       | 默认 yt-dlp 下载格式   |
-| 自动生成的 1080P 文件 | `/vol1/1000/YouTube/1080P/` | 自动二次下载 1080P 分辨率 |
+原视频下载到：
+
+```
+/vol1/1000/YouTube/<频道名>/
+```
+
+自动生成的 1080P 版本输出到：
+
+```
+/vol1/1000/YouTube/1080P/<频道名>/
+```
 
 ---
 
-# 🔧 systemd 服务说明
+### 3. Cookies 设置（可选）
 
-服务文件：
+如需下载：
+
+* 会员视频
+* 年龄限制视频
+* 登录账号数据
+
+请将你的 cookies.txt 放置于：
 
 ```
-/etc/systemd/system/dlp.service
+/vol1/1000/YT-DLP/cookies.txt
 ```
 
-主要命令：
+---
 
-### 启动服务
+## ⚙ 服务管理
 
-```bash
-systemctl start dlp
+### 查看运行状态
+
 ```
-
-### 停止服务
-
-```bash
-systemctl stop dlp
+systemctl status dlp
 ```
 
 ### 重启服务
 
-```bash
+```
 systemctl restart dlp
+```
+
+### 停止服务
+
+```
+systemctl stop dlp
 ```
 
 ### 查看日志
 
-```bash
-journalctl -u dlp -f
 ```
-
-### 设置开机自启
-
-```bash
-systemctl enable dlp
+tail -f /vol1/1000/YT-DLP/monitor.log
 ```
 
 ---
 
-# 🔐 使用 cookies 下载受限视频（可选）
+## 🛠 monitor.sh 工作流程
 
-将浏览器导出的 `cookies.txt` 放到：
+1. 每 5 秒检测一次 dl.txt
+2. 若发现 URL：
 
-```
-/home/yt-dlp/cookies.txt
-```
-
-脚本会自动加载并使用 cookies 下载受限内容（付费、会员、年龄限制等）。
-
----
-
-# 📣 monitor.sh 工作逻辑
-
-`monitor.sh` 每 5 秒执行：
-
-1. 清理空行
-2. 读取第一条 URL
-3. 下载原始视频到 `/YouTube`
-4. 若成功 → 自动下载 1080P 版到 `/YouTube/1080P`
-5. 移除第一行 URL
-6. 继续循环
-
-完全无人值守。
+   * 自动获取视频频道名称
+   * 分类保存原视频
+   * 自动生成 1080P 版本
+   * 成功后删除该 URL 条目
+3. 全过程记录在 monitor.log
 
 ---
 
-# ⭐ 功能亮点
+## 📌 注意事项
 
-| 功能           | 是否支持   |
-| ------------ | ------ |
-| 自动后台循环任务     | ✔      |
-| 自动错误检测       | ✔      |
-| 1080P 自动转存   | ✔      |
-| cookies 登录下载 | ✔      |
-| 断点续传         | ✔      |
-| 并行分片下载       | ✔（8线程） |
-| 多视频自动队列      | ✔      |
-| systemd 自启   | ✔      |
-| 自带日志系统       | ✔      |
+* 脚本目录区分大小写，必需使用 `YouTube` 不是 `Youtube`
+* 下载输出路径大小写必须一致，否则 yt-dlp 无法正确写入
+* 若 cookies.txt 为空，则无法下载会员限制/年龄限制视频
+* monitor.sh 会自动创建空 cookies.txt，如果你没放 cookies，它会继续运行（但无法下载受限内容）
 
 ---
 
-# 🆘 常见问题（FAQ）
+## 🎉 完成
 
-### 1）dl.txt 写入正确但不下载？
+部署完成后，你只需：
 
-检查 service 是否运行：
-
-```bash
-systemctl status dlp
-```
+1. 把链接写进 `/vol1/1000/YT-DLP/dl.txt`
+2. 等待自动下载
+3. 去 `/vol1/1000/YouTube/` 查看结果
 
 ### 2）cookies.txt 无效？
 
