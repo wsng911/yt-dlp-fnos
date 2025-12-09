@@ -2,7 +2,7 @@
 
 echo "=== 创建必要目录 ==="
 mkdir -p /vol1/1000/YouTube
-mkdir -p /vol1/1000/Youtube/1080P
+mkdir -p /vol1/1000/YouTube/1080P
 mkdir -p /vol1/1000/YT-DLP
 mkdir -p /home/yt-dlp
 mkdir -p /home/yt-dlp/bin
@@ -30,6 +30,7 @@ DOWNLOAD_1080P_DIR="/vol1/1000/YouTube/1080P"
 YTDLP_BIN="/home/yt-dlp/bin/yt-dlp"
 
 mkdir -p "$LOG_DIR"
+mkdir -p "$DOWNLOAD_DIR"
 mkdir -p "$DOWNLOAD_1080P_DIR"
 
 LOG_FILE="$LOG_DIR/monitor.log"
@@ -41,7 +42,7 @@ log() {
 log "🟢 monitor.sh 正在运行..."
 
 [ ! -f "$URL_FILE" ] && touch "$URL_FILE"
-[ ! -f "$COOKIE" ] && { log "⚠ 未找到 cookies.txt"; touch "$COOKIE"; }
+[ ! -f "$COOKIE" ] && { log "⚠ 未找到 cookies.txt，已创建空文件"; touch "$COOKIE"; }
 
 while true; do
     sed -i 's/ //g' "$URL_FILE"
@@ -51,12 +52,15 @@ while true; do
         URL=$(head -n 1 "$URL_FILE")
         log "📌 待下载：$URL"
 
+        # 获取频道名称
         CHANNEL=$("$YTDLP_BIN" --cookies "$COOKIE" -o "%(channel)s" --print "%(channel)s" "$URL" 2>/dev/null)
         [ -z "$CHANNEL" ] && CHANNEL="Unknown"
 
+        # 创建频道目录
         mkdir -p "$DOWNLOAD_DIR/$CHANNEL"
         mkdir -p "$DOWNLOAD_1080P_DIR/$CHANNEL"
 
+        # 下载原视频
         "$YTDLP_BIN" \
             --ignore-errors \
             --no-warnings \
@@ -73,6 +77,7 @@ while true; do
             log "✅ 下载完成"
         fi
 
+        # 生成 1080P
         log "🎬 开始生成 1080P 视频..."
         "$YTDLP_BIN" \
             --cookies "$COOKIE" \
@@ -86,6 +91,7 @@ while true; do
             log "⚠ 1080P 生成失败"
         fi
 
+        # 删除第一行
         sed -i '1d' "$URL_FILE"
         log "🧹 已处理并移除：$URL"
     fi
@@ -119,6 +125,6 @@ systemctl enable dlp
 systemctl start dlp
 
 echo "=== 安装完成 ==="
-echo "📌 把链接写入：/vol1/1000/YT-DLP/dl.txt"
-echo "📥 下载输出：/vol1/1000/YouTube/"
-echo "🎬 自动生成 1080P：/vol1/1000/YouTube/1080P/"
+echo "📌 1 把链接写入：/vol1/1000/YT-DLP/dl.txt"
+echo "📥 2 下载输出：/vol1/1000/YouTube/<频道名>/"
+echo "🎬 3 自动生成 1080P：/vol1/1000/YouTube/1080P/<频道名>/"
