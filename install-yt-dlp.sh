@@ -22,9 +22,9 @@ cat > /home/yt-dlp/monitor.sh << 'EOF'
 #!/bin/bash
 
 BASE="/home/yt-dlp"
-URL_FILE="/vol1/1000/YT-DLP/dl.txt"
-COOKIE="$BASE/cookies.txt"
 LOG_DIR="/vol1/1000/YT-DLP"
+URL_FILE="$LOG_DIR/dl.txt"
+COOKIE="$LOG_DIR/cookies.txt"
 DOWNLOAD_DIR="/vol1/1000/YouTube"
 DOWNLOAD_1080P_DIR="/vol1/1000/YouTube/1080P"
 YTDLP_BIN="/home/yt-dlp/bin/yt-dlp"
@@ -51,13 +51,19 @@ while true; do
         URL=$(head -n 1 "$URL_FILE")
         log "📌 待下载：$URL"
 
+        CHANNEL=$("$YTDLP_BIN" --cookies "$COOKIE" -o "%(channel)s" --print "%(channel)s" "$URL" 2>/dev/null)
+        [ -z "$CHANNEL" ] && CHANNEL="Unknown"
+
+        mkdir -p "$DOWNLOAD_DIR/$CHANNEL"
+        mkdir -p "$DOWNLOAD_1080P_DIR/$CHANNEL"
+
         "$YTDLP_BIN" \
             --ignore-errors \
             --no-warnings \
             --cookies "$COOKIE" \
             --concurrent-fragments 8 \
             --merge-output-format mp4 \
-            -o "$DOWNLOAD_DIR/%(upload_date)s_%(title)s.%(ext)s" \
+            -o "$DOWNLOAD_DIR/$CHANNEL/%(upload_date)s_%(title)s.%(ext)s" \
             "$URL" 2>&1 | tee -a "$LOG_FILE"
 
         RET=$?
@@ -71,7 +77,7 @@ while true; do
         "$YTDLP_BIN" \
             --cookies "$COOKIE" \
             -f "bestvideo[height<=1080]+bestaudio/best[height<=1080]" \
-            -o "$DOWNLOAD_1080P_DIR/%(upload_date)s_%(title)s_1080p.%(ext)s" \
+            -o "$DOWNLOAD_1080P_DIR/$CHANNEL/%(upload_date)s_%(title)s_1080p.%(ext)s" \
             "$URL" 2>&1 | tee -a "$LOG_FILE"
 
         if [ $? -eq 0 ]; then
