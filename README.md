@@ -20,7 +20,7 @@
 
 ```bash
 bash <(curl -sL bash <(curl -sL https://raw.githubusercontent.com/wsng911/yt-dlp-fnos/main/install-yt-dlp.sh)
-)
+
 ```
 
 脚本将自动完成：
