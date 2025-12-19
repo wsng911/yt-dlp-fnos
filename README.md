@@ -6,7 +6,6 @@
 
 * 自动检测下载队列 (`dl.txt`)
 * 自动下载原始视频
-* 自动生成 *1080P 转码版*
 * 自动日志输出
 * 自动后台常驻服务（systemd）
 * 自动开机启动
@@ -47,10 +46,7 @@ bash <(curl -sL https://raw.githubusercontent.com/wsng911/yt-dlp-fnos/main/insta
 /vol1/1000/
 ├── YouTube/
 │   ├── <频道名>/
-│   │   └── YYYYMMDD_标题.mp4
-│   └── 1080P/
-│       └── <频道名>/
-│           └── YYYYMMDD_标题_1080p.mp4
+│       └── YYYYMMDD_标题.mp4
 └── YT-DLP/
     ├── dl.txt          # 写入待下载 URL
     ├── cookies.txt     # YouTube cookies
